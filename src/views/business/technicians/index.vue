@@ -164,6 +164,9 @@
         <el-form-item label="生活照" prop="lifeImage">
           <imageUpload v-model="form.lifeImage" uploadUrl="/common/upload" />
         </el-form-item>
+        <el-form-item label="技师资质" prop="certificate">
+          <imageUpload v-model="form.certificate" :limit="1" uploadUrl="/common/upload" />
+        </el-form-item>
         <el-form-item label="个人视频" prop="personalVideoIntroduction">
           <el-input v-model="form.personalVideoIntroduction" placeholder="请输入个人视频" />
         </el-form-item>
@@ -336,7 +339,11 @@ export default {
       this.reset();
       const technicianId = row.technicianId || this.ids
       getTechnicians(technicianId).then(response => {
-        this.form = response.data;
+        this.form = {
+          ...response.data,
+          lifeImage: response.data.lifeImage?response.data.lifeImage.split(',=,').join(",") : "",
+          personalVideoIntroduction: response.data.personalVideoIntroduction?response.data.personalVideoIntroduction.split(',=,').join(",") : "",
+        };
         this.open = true;
         this.title = "修改技师";
       });
@@ -346,7 +353,12 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.technicianId != null) {
-            updateTechnicians(this.form).then(response => {
+            var params = {
+              ...this.form,
+              lifeImage: this.form.lifeImage?this.form.lifeImage.split(',').join(',=,'): "",
+              personalVideoIntroduction: this.form.personalVideoIntroduction?this.form.personalVideoIntroduction.split(',').join(',=,'): ""
+            }
+            updateTechnicians(params).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
